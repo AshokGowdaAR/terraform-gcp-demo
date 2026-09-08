@@ -4,22 +4,12 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/AshokGowdaAR/terraform-gcp-demo.git'
-            }
-        }
-        stage('Terraform Format Check') {
-            steps {
-                sh 'terraform fmt -check'
+                git branch: 'main', url: 'https://github.com/AshokGowdaAR/terraform-jenkins.git'
             }
         }
         stage('Terraform Init') {
             steps {
                 sh 'terraform init'
-            }
-        }
-        stage('Terraform Validate') {
-            steps {
-                sh 'terraform validate'
             }
         }
         stage('Terraform Plan') {
