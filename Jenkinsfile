@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/AshokGowdaAR/terraform-jenkins.git'
+                git branch: 'feature-jenkins', url: 'https://github.com/AshokGowdaAR/terraform-gcp-demo.git'
             }
         }
         stage('Terraform Init') {
