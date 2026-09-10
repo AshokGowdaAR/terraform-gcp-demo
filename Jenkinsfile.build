@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_ID = 'my-project-jenkins-508011'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Format & Validate') {
+            steps {
+                sh 'terraform fmt -check -recursive'
+                sh 'terraform validate'
+            }
+        }
+
+        stage('TFSec Scan') {
+            steps {
+                sh 'tfsec . || true'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                # Generate binary plan file
+                sh "terraform plan -var=project_id=${PROJECT_ID} -out=tfplan"
+            }
+        }
+
+        stage('Archive Plan Artifact') {
+            steps {
+                # Store binary plan file in Jenkins for the deploy pipeline
+                archiveArtifacts artifacts: 'tfplan', fingerprint: true
+            }
+        }
+    }
+}

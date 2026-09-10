@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BUILD_NUMBER', defaultValue: 'lastSuccessfulBuild', description: 'Build number of build-pipeline containing the tfplan artifact')
+    }
+
+    stages {
+        stage('Fetch Plan Artifact') {
+            steps {
+                # Copy tfplan artifact from the build pipeline workspace
+                copyArtifacts projectName: 'build-pipeline',
+                              selector: specific("${params.BUILD_NUMBER}"),
+                              filter: 'tfplan'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                # Pauses pipeline for user confirmation before applying infrastructure changes
+                input message: "Review the plan for build #${params.BUILD_NUMBER}. Proceed with apply?", ok: "Approve & Deploy"
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                # Apply exact archived plan
+                sh 'terraform apply -input=false tfplan'
+            }
+        }
+    }
+}
