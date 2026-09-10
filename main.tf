@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.0.0"
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -12,14 +13,30 @@ provider "google" {
   region  = var.region
 }
 
-resource "google_compute_network" "custom_vpc" {
-  name                    = "demo-terraform-vpc"
-  auto_create_subnetworks = false
+module "vpc" {
+  source   = "./modules/vpc"
+  vpc_name = "modular-demo-vpc"
 }
 
-resource "google_compute_subnetwork" "custom_subnet" {
-  name          = "demo-terraform-subnet"
-  ip_cidr_range = "10.10.1.0/24"
-  region        = var.region
-  network       = google_compute_network.custom_vpc.id
+module "subnet" {
+  source      = "./modules/subnet"
+  subnet_name = "modular-demo-subnet"
+  subnet_cidr = "10.20.1.0/24"
+  region      = var.region
+  vpc_id      = module.vpc.vpc_id
+}
+
+module "firewall" {
+  source        = "./modules/firewall"
+  firewall_name = "allow-ssh-modular"
+  vpc_name      = module.vpc.vpc_name
+}
+
+module "vm" {
+  source        = "./modules/vm"
+  instance_name = "modular-demo-vm"
+  machine_type  = "e2-micro"
+  zone          = var.zone
+  vpc_id        = module.vpc.vpc_id
+  subnet_id     = module.subnet.subnet_id
 }
