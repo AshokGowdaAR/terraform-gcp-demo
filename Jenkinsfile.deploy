@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Fetch Plan Artifact') {
             steps {
-                # Copy tfplan artifact from the build pipeline workspace
+                // Copy tfplan artifact from the build pipeline workspace
                 copyArtifacts projectName: 'build-pipeline',
                               selector: specific("${params.BUILD_NUMBER}"),
                               filter: 'tfplan'
@@ -23,14 +23,14 @@ pipeline {
 
         stage('Manual Approval') {
             steps {
-                # Pauses pipeline for user confirmation before applying infrastructure changes
+                // Pauses pipeline for user confirmation before applying infrastructure changes
                 input message: "Review the plan for build #${params.BUILD_NUMBER}. Proceed with apply?", ok: "Approve & Deploy"
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                # Apply exact archived plan
+                // Apply exact archived plan
                 sh 'terraform apply -input=false tfplan'
             }
         }

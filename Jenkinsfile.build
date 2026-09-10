@@ -33,14 +33,14 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                # Generate binary plan file
+                // Generate binary plan file
                 sh "terraform plan -var=project_id=${PROJECT_ID} -out=tfplan"
             }
         }
 
         stage('Archive Plan Artifact') {
             steps {
-                # Store binary plan file in Jenkins for the deploy pipeline
+                // Store binary plan file in Jenkins for the deploy pipeline
                 archiveArtifacts artifacts: 'tfplan', fingerprint: true
             }
         }
